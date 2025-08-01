@@ -5,7 +5,7 @@ import {BrandInstagramIcon} from '@inertiapixel/react-icons';
 const Instagram = () => {
   return (
     <>
-        <div className='grid grid-cols-7'>
+        <div className='grid grid-cols-4 md:grid-cols-7'>
             {instagram.map((item, index) => (
                 <div key={index} className='relative overflow-hidden group'>
                     <img src={item.image} alt="" className='w-full h-full' />

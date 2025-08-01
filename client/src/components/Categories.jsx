@@ -6,8 +6,8 @@ const Categories = () => {
     const {navigate} = useAppContext();
   return (
     <>
-        <div className='mt-16'>
-            <div className="flex flex-col items-end w-max mb-8">
+        <div className='mt-10 xl:mt-16'>
+            <div className="flex flex-col items-end w-max">
                 <p className="text-2xl font-medium uppercase">Our Categories</p>
                 <div className="w-16 h-0.5 bg-primary rounded-full"></div>
             </div>
@@ -29,7 +29,7 @@ const Categories = () => {
             </div> */}
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-10'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-12 md:gap-14 lg:gap-6 my-10 xl:my-28'>
             {
                     categories.map((item, index)=>(
                         <div key={index} className='group cursor-pointer py-5 px-3 gap-2 rounded-lg flex flex-col justify-center items-center categoryProducts' style={{background: item.bgColor}} onClick={()=> {
@@ -38,7 +38,7 @@ const Categories = () => {
                         }
                         }>
                             <img src={item.image} alt={item.text}className='group-hover:scale-108 transition' />
-                            <p className='font-medium uppercase text-md absolute bottom-18 text-white'>{item.text}</p>
+                            <p className='font-medium uppercase text-md absolute bottom-6 text-white'>{item.text}</p>
                         </div>
                     ))
                 }

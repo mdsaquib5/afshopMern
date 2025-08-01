@@ -33,7 +33,7 @@ const App = () => {
         <Toaster />
 
         <div
-          className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}
+          className={`${isSellerPath ? "" : "mx-auto px-3 lg:px-6 xl:px-12 afContainer"}`}
         >
           <Routes>
             <Route path={"/"} element={<Home />}></Route>
@@ -61,7 +61,7 @@ const App = () => {
           </Routes>
         </div>
 
-        <div className="mt-24">
+        <div className="mt-14">
             {!isSellerPath && <Footer />}
         </div>
       </div>

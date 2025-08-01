@@ -9,8 +9,8 @@ const Footer = () => {
     <>
       <Services />
       <Instagram />
-      <div className="px-6 md:px-16 lg:px-24 xl:px-32 bg-black">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-10 py-8 border-b border-gray-500/30 text-gray-400">
+      <div className="mx-auto px-3 lg:px-6 xl:px-12 bg-black afContainer">
+        <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center justify-between gap-10 py-8 border-b border-gray-500/30 text-gray-400">
           <div>
             <img className="logo filter invert" src={assets.logo} alt="logo" />
             <div className="flex flex-col gap-2 mt-6">
@@ -24,7 +24,7 @@ const Footer = () => {
             <p>Easy 7-Day Returns & Exchanges</p>
             <p>Free Shipping - Across India</p>
           </div>
-          <div className="flex flex-wrap justify-between w-full md:w-[30%] gap-5">
+          <div className="flex flex-wrap justify-between w-full lg:w-[30%] gap-5">
             {footerLinks.map((section, index) => (
               <div key={index}>
                 <h3 className="font-semibold text-base text-gray-200 md:mb-5 mb-2">
