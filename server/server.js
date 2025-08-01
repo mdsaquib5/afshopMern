@@ -19,7 +19,7 @@ await connectDB();
 await connectCloudinary();
 
 // Allow Multiple origins
-const allowedOrigins = ['http://localhost:5173', 'https://green-cart-taupe.vercel.app'];
+const allowedOrigins = ['http://localhost:5173', 'https://affrontend.vercel.app'];
 
 app.post('/stripe', express.raw({type: "application/json"}), stripWebHooks);
 
