@@ -8,26 +8,35 @@ const Login = () => {
 
     const [state, setState] = React.useState("login");
     const [name, setName] = React.useState("");
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
+    const [email, setEmail] = React.useState("mdsaquib5540@gmail.com");
+    const [password, setPassword] = React.useState("mdsaquib5540");
 
     const onSubmitHandler = async (event) => {
         try {
             event.preventDefault();
 
+            console.log('Login - Attempting to authenticate user:', email);
+            console.log('Login - Backend URL:', import.meta.env.VITE_BACKEND_URL);
+
             const { data } = await axios.post(`/api/user/${state}`, {
                 name, email, password
             });
 
+            console.log('Login - Response received:', data);
+
             if (data.success) {
+                console.log('Login - Authentication successful');
                 navigate('/');
                 setUser(data.user);
                 setShowUserLogin(false);
+                toast.success('Login successful!');
             }else{
+                console.log('Login - Authentication failed:', data.message);
                 toast.error(data.message);
             }
             
         } catch (error) {
+            console.log('Login - Error during authentication:', error.message);
             toast.error(error.message);
         }
     }

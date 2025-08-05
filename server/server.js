@@ -19,16 +19,58 @@ await connectDB();
 await connectCloudinary();
 
 // Allow Multiple origins
-const allowedOrigins = ['http://localhost:5173', 'https://affrontend.vercel.app'];
+const allowedOrigins = [
+    'http://localhost:5173', 
+    'https://affrontend.vercel.app' // Add your actual frontend domain
+];
 
 app.post('/stripe', express.raw({type: "application/json"}), stripWebHooks);
 
 // Middleware Configration
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({origin: allowedOrigins, credentials: true}));
+
+// CORS configuration for production
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        // Allow all Vercel domains in production
+        if (process.env.NODE_ENV === 'production') {
+            if (origin.includes('vercel.app') || origin.includes('localhost')) {
+                console.log('CORS - Allowing origin:', origin);
+                return callback(null, true);
+            }
+        }
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            console.log('CORS - Allowing origin:', origin);
+            callback(null, true);
+        } else {
+            console.log('CORS - Blocking origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie']
+}));
 
 app.get('/', (req, res) => res.send('API is Working'));
+
+// Test endpoint to check cookies
+app.get('/api/test-cookie', (req, res) => {
+    console.log('Test endpoint - All cookies:', req.cookies);
+    console.log('Test endpoint - Token cookie:', req.cookies.token);
+    res.json({
+        success: true,
+        cookies: req.cookies,
+        hasToken: !!req.cookies.token,
+        environment: process.env.NODE_ENV
+    });
+});
 app.use('/api/user', userRouter);
 app.use('/api/seller', sellerRouter);
 app.use('/api/product', productRouter);

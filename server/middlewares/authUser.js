@@ -4,8 +4,13 @@ import jwt from 'jsonwebtoken';
 const authUser = async (req, res, next) => {
     const { token } = req.cookies;
 
+    // Debug logging
+    console.log('Auth middleware - Cookies:', req.cookies);
+    console.log('Auth middleware - Token exists:', !!token);
+    console.log('Auth middleware - Environment:', process.env.NODE_ENV);
+
     if (!token) {
-        return res.json({success: false, message: 'Not Authorized'});
+        return res.json({success: false, message: 'Not Authorized - No token found'});
     }
 
     try {
@@ -16,12 +21,13 @@ const authUser = async (req, res, next) => {
                 req.body = {};
             }
             req.body.userId = tokenDecode.id;
+            console.log('Auth middleware - Token verified successfully');
         }else{
-            return res.json({success: false, message: 'Not Authorized'});
+            return res.json({success: false, message: 'Not Authorized - Invalid token'});
         }
         next();
     } catch (error) {
-        console.log(error.message);
+        console.log('Auth middleware - Token verification error:', error.message);
         return res.json({success: false, message: error.message});
     }
 }

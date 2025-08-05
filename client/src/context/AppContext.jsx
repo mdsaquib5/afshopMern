@@ -14,7 +14,7 @@ export const AppContextProvider = ({children})=> {
 
     const currency = import.meta.env.VITE_CURRENCY;
 
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(false);
     const [isSeller, setIsSeller] = useState(false);
     const [showUserLogin, setShowUserLogin] = useState(false);
     const [products, setProducts] = useState([]);
@@ -40,12 +40,19 @@ export const AppContextProvider = ({children})=> {
     // fetch User Auth Status, user Data & CartItems
     const fetchUser = async () => {
         try {
+            console.log('Fetching user auth status...');
             const { data } = await axios.get('/api/user/is-auth');
+            console.log('Auth response:', data);
             if (data.success) {
                 setUser(data.user);
                 setCartItems(data.user.cartItems);
+                console.log('User authenticated successfully');
+            } else {
+                console.log('User not authenticated:', data.message);
+                setUser(null);
             }
         } catch (error) {
+            console.log('Auth error:', error.message);
             setUser(null);
         }
     }
