@@ -39,16 +39,16 @@ app.use(cors({
         // Allow all Vercel domains in production
         if (process.env.NODE_ENV === 'production') {
             if (origin.includes('vercel.app') || origin.includes('localhost')) {
-                console.log('CORS - Allowing origin:', origin);
+                // console.log('CORS - Allowing origin:', origin);
                 return callback(null, true);
             }
         }
         
         if (allowedOrigins.indexOf(origin) !== -1) {
-            console.log('CORS - Allowing origin:', origin);
+            // console.log('CORS - Allowing origin:', origin);
             callback(null, true);
         } else {
-            console.log('CORS - Blocking origin:', origin);
+            // console.log('CORS - Blocking origin:', origin);
             callback(new Error('Not allowed by CORS'));
         }
     },

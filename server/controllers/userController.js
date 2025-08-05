@@ -169,10 +169,10 @@ export const login = async (req, res) => {
 //     }
 // }
 export const isAuth = async (req, res) => {
-    console.log('is Auth');
+    // console.log('is Auth');
     try {
       const token = req.cookies.token;
-        console.log('is Auth', token);
+        // console.log('is Auth', token);
 
   
       if (!token) {
@@ -180,7 +180,7 @@ export const isAuth = async (req, res) => {
       }
   
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Check Decoded', decoded);
+      // console.log('Check Decoded', decoded);
       const user = await User.findById(decoded.id).select('-password');
   
       if (!user) {
