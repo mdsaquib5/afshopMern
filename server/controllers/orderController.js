@@ -217,39 +217,3 @@ export const stripWebHooks = async (request, response) => {
     }
     response.json({received: true});
 }
-
-
-
-
-
-// try {
-//     const { userId, items, address } = req.body;
-
-//     if (!address || items.length === 0) {
-//         return res.json({success: false, message: 'Invalid Data'});
-//     }
-    
-//     // Calculate Amount using items
-//     let amount = 0;
-//     for (const item of items) {
-//         const product = await Product.findById(item.product);
-//         if (product) {
-//             amount += product.offerPrice * item.quantity;
-//         }
-//     }
-
-//     // Add tax charge 2%
-//     amount += Math.floor(amount * 0.02);
-    
-//     await Order.create({
-//         userId,
-//         items,
-//         amount,
-//         address,
-//         paymentType: 'COD'
-//     });
-//     return res.json({success: true, message: 'Order Placed Successfully'});
-// } catch (error) {
-//     console.log(error.message);
-//     return res.json({success: false, message: error.message});
-// }
