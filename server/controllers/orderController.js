@@ -1,7 +1,9 @@
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import stripe from 'stripe';
-import User from '../models/User.js'
+import User from '../models/User.js';
+import razorOrderCreate from '../services/razor.js';
+import crypto from "crypto";
 
 
 //  Place Order COD : /api/order/cod
@@ -217,3 +219,135 @@ export const stripWebHooks = async (request, response) => {
     }
     response.json({received: true});
 }
+
+
+// Razor pay
+
+export const placeOrderRazorpay = async (req, res) => {
+    try {
+        const { userId, items, address } = req.body;
+        const { origin } = req.headers;
+
+        if (!address || items.length === 0) {
+            return res.json({success: false, message: 'Invalid Data'});
+        }
+
+        let productData = [];
+        
+        // Calculate Amount using items
+        let amount = 0;
+        for (const item of items) {
+            const product = await Product.findById(item.product);
+
+            productData.push({
+                name: product.name,
+                price: product.offerPrice,
+                quantity: item.quantity,
+            });
+            if (product) {
+                amount += product.offerPrice * item.quantity;
+            }
+        }
+
+        // Add tax charge 2%
+        amount += Math.floor(amount * 0.02);
+        
+        const order = await Order.create({
+            userId,
+            items,
+            amount,
+            address,
+            paymentType: 'Online',
+            payemntGateway: 'Razorpay'
+        });
+
+        // Razor gateway Initialize
+        const rozorData = await razorOrderCreate(order);
+        console.log('Console Rz Data', rozorData);
+        
+
+
+        return res.json({success: true, rozorData, orderIdm: order._id});
+    } catch (error) {
+        console.log(error.message);
+        return res.json({success: false, message: error.message});
+    }
+}
+
+
+export const verifyRazorpay1 =  async (req, res) => {
+    console.log('Verify Razor Func', req.body);
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+          .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+          .update(sign)
+          .digest("hex");
+    
+        if (razorpay_signature === expectedSign) {
+          return res.json({ success: true, message: "Payment verified successfully" });
+        } else {
+          return res.status(400).json({ success: false, message: "Invalid signature" });
+        }
+      } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+      }
+}
+
+
+export const verifyRazorpay = async (req, res) => {
+  console.log('Verify Razor Func', req.body);
+
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId, orderIdm } = req.body;
+
+    const order = await Order.findById(orderIdm);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    const sign = razorpay_order_id + "|" + razorpay_payment_id;
+    const expectedSign = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(sign)
+      .digest("hex");
+
+    const isValid = razorpay_signature === expectedSign;
+
+    if (isValid) {
+      order.status = 'Paid';
+      order.isPaid = true;
+      order.paymentGateway = 'razorpay';
+      order.paymentLog.push({
+        status: 'success',
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        message: 'Payment verified successfully',
+        date: new Date()
+      });
+
+      await order.save();
+      return res.json({ success: true, message: "Payment verified successfully" });
+    } else {
+      order.status = 'Payment Failed';
+      order.isPaid = false;
+      order.paymentLog.push({
+        status: 'failed',
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        message: 'Invalid signature',
+        date: new Date()
+      });
+
+      await order.save();
+      return res.status(400).json({ success: false, message: "Invalid signature" });
+    }
+  } catch (error) {
+    console.error("Verify Razorpay Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

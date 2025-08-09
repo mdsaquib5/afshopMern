@@ -12,6 +12,7 @@ const Cart = () => {
   const [showAddress, setShowAddress] = useState(false); 
   const [selectedAdddress, setSelectedAdddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState('COD');
+  const [loading, setLoading] = useState(false);
 
   const getCart = () =>{
     let tempArray = [];
@@ -39,40 +40,153 @@ const Cart = () => {
     }
   }
 
-  const placeOrder = async () =>{
+//   const placeOrder = async () =>{
+//     try {
+//         if (!selectedAdddress) {
+//             return toast.error('Please Select an Address');
+//         }
+//         // Place Order with COD
+//         if (paymentOption === 'COD') {
+//             const { data } = await axios.post('/api/order/cod', {
+//                 userId: user._id,
+//                 items: cartArray.map(item => ({product: item._id, quantity: item.quantity})), address: selectedAdddress._id
+//             })
+//             if (data.success) {
+//                 toast.success(data.message);
+//                 setCartItems({});
+//                 navigate('/my-orders');
+//             }else{
+//                 toast.error(data.message);
+//             }
+//         }else{
+//             // Place order with stripe
+//             const { data } = await axios.post('/api/order/razorpay', {
+//                 userId: user._id,
+//                 items: cartArray.map(item => ({product: item._id, quantity: item.quantity})), address: selectedAdddress._id
+//             })
+//             if (data.success) {
+//                 // window.location.replace(data.url);
+//                 console.log(data.rozorData);
+//             }else{
+//                 toast.error(data.message);
+//             }
+//         }
+//     } catch (error) {
+//         toast.error(error.message);
+//     }
+//   }
+
+const placeOrder = async () => {
     try {
-        if (!selectedAdddress) {
-            return toast.error('Please Select an Address');
+      if (!selectedAdddress) {
+        return toast.error("Please Select an Address");
+      }
+  
+      setLoading(true);
+  
+      // COD Flow
+      if (paymentOption === "COD") {
+        const { data } = await axios.post("/api/order/cod", {
+          userId: user._id,
+          items: cartArray.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+          })),
+          address: selectedAdddress._id,
+        });
+  
+        if (data.success) {
+          toast.success(data.message);
+          setCartItems({});
+          navigate("/my-orders");
+        } else {
+          toast.error(data.message);
         }
-        // Place Order with COD
-        if (paymentOption === 'COD') {
-            const { data } = await axios.post('/api/order/cod', {
-                userId: user._id,
-                items: cartArray.map(item => ({product: item._id, quantity: item.quantity})), address: selectedAdddress._id
-            })
-            if (data.success) {
-                toast.success(data.message);
-                setCartItems({});
-                navigate('/my-orders');
-            }else{
-                toast.error(data.message);
-            }
-        }else{
-            // Place order with stripe
-            const { data } = await axios.post('/api/order/stripe', {
-                userId: user._id,
-                items: cartArray.map(item => ({product: item._id, quantity: item.quantity})), address: selectedAdddress._id
-            })
-            if (data.success) {
-                window.location.replace(data.url);
-            }else{
-                toast.error(data.message);
-            }
-        }
+        setLoading(false);
+        return;
+      }
+  
+      // Razorpay Flow
+      // Load Razorpay checkout script
+      const loadRazorpay = () => {
+        return new Promise((resolve) => {
+          const script = document.createElement("script");
+          script.src = "https://checkout.razorpay.com/v1/checkout.js";
+          script.onload = () => resolve(true);
+          script.onerror = () => resolve(false);
+          document.body.appendChild(script);
+        });
+      };
+  
+      const razorpayLoaded = await loadRazorpay();
+      if (!razorpayLoaded) {
+        toast.error("Failed to load Razorpay SDK");
+        setLoading(false);
+        return;
+      }
+  
+      // Create Razorpay order in backend
+      const { data } = await axios.post("/api/order/razorpay-create-order", {
+        userId: user._id,
+        items: cartArray.map((item) => ({
+          product: item._id,
+          quantity: item.quantity,
+        })),
+        address: selectedAdddress._id,
+      });
+      console.log('This is Data Success', data);
+      if (!data.success) {
+        toast.error(data.message);
+        setLoading(false);
+        return;
+      }
+  
+      const razorData = data.rozorData;
+  
+      // Open Razorpay checkout
+      const options = {
+        key: 'rzp_test_efeFEAbg3YiMSq',
+        amount: razorData.amount,
+        currency: razorData.currency,
+        name: "My Store",
+        description: "Order Payment",
+        order_id: razorData.id,
+        handler: async (response) => {
+          // Verify payment in backend
+          const verifyRes = await axios.post("/api/order/razorpay-verify", {
+            ...response, // razorpay_payment_id, razorpay_order_id, razorpay_signature
+            orderId: razorData.receipt,
+            orderIdm: data.orderIdm,
+          });
+          
+  
+          if (verifyRes.data.success) {
+            toast.success("Payment successful");
+            setCartItems({});
+            navigate("/my-orders");
+          } else {
+            toast.error("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone || "9999999999",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+  
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+      setLoading(false);
     } catch (error) {
-        toast.error(error.message);
+      toast.error(error.message);
+      setLoading(false);
     }
-  }
+  };
+
 
   useEffect(() => {
     if(products.length > 0  && cartItems){

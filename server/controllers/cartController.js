@@ -11,4 +11,4 @@ export const updateCart = async (req, res) => {
         console.log(error.message);
         return res.json({success: false, message: error.message});
     }
-} 
+}

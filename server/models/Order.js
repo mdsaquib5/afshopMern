@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { type } from 'os';
 
 const orderSchema = new mongoose.Schema({
     userId: {type: String, required: true, ref: 'user' },
@@ -18,10 +19,10 @@ const orderSchema = new mongoose.Schema({
     status: {type: String, default: 'Order Placed'},
     paymentType: {type: String, required: true},
     isPaid: {type: Boolean, required: true, default: false},
+    payemntGateway: {type: String},
+    paymentLog: { type: Array, default: [] },
 }, {timestamps: true});
 
 const Order = mongoose.model.order || mongoose.model('order', orderSchema);
 
 export default Order;
-
-
