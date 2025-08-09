@@ -5,7 +5,7 @@ import Razorpay from "razorpay";
 const razorOrderCreate = async (order) => {
   try {
     const razorpay = new Razorpay({
-      key_id: 'rzp_live_kz1xRCwqd6Zb93',
+      key_id: process.env.RAZORPAY_KEY_ID,
       key_secret: process.env.RAZORPAY_KEY_SECRET
     });
 
@@ -21,7 +21,7 @@ const razorOrderCreate = async (order) => {
     return rzOrder;
   } catch (err) {
     console.error(err);
-    throw new Error("Unable to create order New");
+    throw new Error("Unable to create order");
   }
 };
 

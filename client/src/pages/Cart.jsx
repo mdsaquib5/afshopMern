@@ -148,7 +148,7 @@ const placeOrder = async () => {
         key: 'rzp_live_kz1xRCwqd6Zb93',
         amount: razorData.amount,
         currency: razorData.currency,
-        name: "My Store",
+        name: "Afonline Shop",
         description: "Order Payment",
         order_id: razorData.id,
         handler: async (response) => {
