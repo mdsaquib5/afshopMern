@@ -30,7 +30,6 @@ const Login = () => {
                 setUser(data.user);
                 setShowUserLogin(false);
                 toast.success('Login successful!');
-                localStorage.set('isLoggedin',true);
             }else{
                 console.log('Login - Authentication failed:', data.message);
                 toast.error(data.message);
