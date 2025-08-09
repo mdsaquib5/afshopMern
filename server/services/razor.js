@@ -21,7 +21,7 @@ const razorOrderCreate = async (order) => {
     return rzOrder;
   } catch (err) {
     console.error(err);
-    throw new Error("Unable to create order");
+    throw new Error("Unable to create order New");
   }
 };
 
