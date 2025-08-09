@@ -5,7 +5,7 @@ import Razorpay from "razorpay";
 const razorOrderCreate = async (order) => {
   try {
     const razorpay = new Razorpay({
-      key_id: 'rzp_test_efeFEAbg3YiMSq',
+      key_id: 'rzp_live_kz1xRCwqd6Zb93',
       key_secret: process.env.RAZORPAY_KEY_SECRET
     });
 

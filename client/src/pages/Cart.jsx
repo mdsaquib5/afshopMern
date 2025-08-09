@@ -145,7 +145,7 @@ const placeOrder = async () => {
   
       // Open Razorpay checkout
       const options = {
-        key: 'rzp_test_efeFEAbg3YiMSq',
+        key: 'rzp_live_kz1xRCwqd6Zb93',
         amount: razorData.amount,
         currency: razorData.currency,
         name: "My Store",
